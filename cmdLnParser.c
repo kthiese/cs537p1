@@ -4,15 +4,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+int pid = -1;
+int s = 0;
+int U = 1;
+int S = 0;
+int v = 0;
+int c = 1;
+
 int main (int argc, char *argv[]){
-	int pid = 0;
-	int opt = 0;
-	int s = 0;
-	int U = 1;
-	int S = 0;
-	int v = 0;
-	int c = 1;
 	
+	int opt = 0;
 	while ((opt = getopt (argc, argv, "p:sUSvc")) != -1) {
 		switch (opt)
 		{
@@ -37,11 +38,9 @@ int main (int argc, char *argv[]){
 	      }
 	}
 
-	if (p == 1){
-			
-	}
+	getProcesses(pid);
 
-	printf("%i %d %d %d %d %d", pid, s, U, S, v, c);
+	printf("%d %d %d %d %d", s, U, S, v, c);
 
 
 	return 0;
