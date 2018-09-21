@@ -48,7 +48,7 @@ int main(int c, char *v[])
 
 				if(strcmp(myFile->d_name, "stat") == 0)
 				{
-					printf("stat found");
+					//printf("stat found");
 					// file pointer and buf to hold contents of file
 					FILE *ptr_file;
 					char buf[1000];
@@ -77,37 +77,44 @@ int main(int c, char *v[])
 					eof = strtok(buf, " ");
 					int counter = 0;
 					
-					//while(eof != NULL || counter < 16)
-					while(counter < 16)
+					while(eof != NULL && counter < 20)
 					{
+
 						//printf("%s\n", eof);
-						eof = strtok(NULL, " ");
+
+/*
 						if(counter == 1)
 						{
-							printf("%s\n","1");
+							//printf("%s\n","1");
 							//data.pid = eof;
-							printf("%s\n", eof);
+							//printf("%s\n", eof);
 							strcpy(data->pid, eof);
 						}
 						if(counter == 3)
 						{
-							printf("%s\n","3");
-							printf("%s\n", eof);
+							//printf("%s\n","3");
+							//printf("%s\n", eof);
 							strcpy(data->state, eof);
-						}
-						if(counter == 13)
-						{
-							printf("%s\n","14");
-							printf("%s\n", eof);
-							strcpy(data->user_time, eof);
 						}
 						if(counter == 14)
 						{
-							printf("%s\n","15");
-							printf("%s\n", eof);
+							//printf("%s\n","14");
+							//printf("%s\n", eof);
+							strcpy(data->user_time, eof);
+						}
+						if(counter == 15)
+						{
+							//printf("%s\n","15");
+							//printf("%s\n", eof);
 							strcpy(data->sys_time, eof);
 						}
-
+*/
+						printf("%s", "Counter: ");
+						//puts(counter);
+						printf("%d\n",counter);
+						printf("%s", "EOF Val: ");
+						printf("%s\n", eof);
+						eof = strtok(NULL, " ");
 						counter++;
 					}
 
@@ -120,13 +127,13 @@ int main(int c, char *v[])
 			else
 				puts("directory cannot be closed");
 		}
-
+/*
 		printf("%s\n","end reached");
 		printf("%s\n",data->pid);
 		printf("%s\n",data->state);
 		printf("%s\n",data->user_time);
 		printf("%s\n",data->sys_time);
-		
+*/		
 		
 	}
 }
