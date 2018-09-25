@@ -17,11 +17,9 @@ int v = 0;
 int c = 1;
 
 int main (int argc, char *argv[]){
-	printf("COMMAND PARSER\n");
 	uid = (char *)malloc(sizeof(unsigned int)*8 + 1);
 	sprintf(uid, "%u", getuid());	
 	int opt = 0;
-	printf("reading input\n");
 	// Parses the command line and does the appropriate action
 	while ((opt = getopt (argc, argv, "p:s::U::S::v::c::")) != -1) {
 		switch (opt)
@@ -30,49 +28,62 @@ int main (int argc, char *argv[]){
 	        	 pid = optarg;
   			 break;
 	      		case 's':
-	        	 if (*optarg == '-'){
+	        	 if (optarg != NULL && *optarg == '-'){
 				 break;
+			 }else if (optarg != NULL && *optarg != '-') {
+				 printf("ERROR: 's' flag has no arguments. Only '-s-' , but it has no effect.\n");
+				 return 0;	 
 			 }else{ 
 			 	s = 1;
 	        	 	break;
 			 }
 	     	        case 'U':
-	        	 if (*optarg == '-'){
+	        	 if (optarg != NULL && *optarg == '-'){
 				 U = 0;
 				 break;
-			 } else {
+			 } else if (optarg != NULL && *optarg != '-') {
+				  printf("ERROR: 'U' flag has no arguments. Only '-U-': does not show utime when listing processes.\n");
+				 return 0;
+			 }else {
 			 	 break;
 			 }
 	      		case 'S':
-			 if (*optarg == '-'){
+			 if (optarg != NULL && *optarg == '-'){
 				 break;
-			 } else {
+			 } else if (optarg != NULL&& *optarg != '-') {
+				  printf("ERROR: 'S' flag has no arguments. Only '-S-' , but it has no effect.\n");
+				 return 0;
+			 }else {
 			 	S = 1;
 	        	 	break;
 			 }
 	     	 	case 'v':
-			 if (*optarg == '-') {
+			 if (optarg != NULL && *optarg == '-') {
 				 break;
-			 } else {
+			 } else if (optarg != NULL && *optarg != '-') {
+				  printf("ERROR: 'v' flag has no arguments. Only '-v-' , but it has no effect.\n");
+				 return 0;
+			 }else {
 			 	v = 1;
 			 	break;
 			 }
 	      		case 'c':
-			 if (*optarg == '-'){
+			 if (optarg != NULL && *optarg == '-'){
 				 c = 0;
-			 } else {
+				 break;
+			 } else if (optarg != NULL && *optarg != '-') {
+				  printf("ERROR: 'c' flag has no arguments. Only '-c-': does not show command when listing processes.\n");
+				 return 0;
+			 }else {
 			 	break;
 			 }
 			case '?':
-			 printf("WRONG INPUT");
-			 break;
-
+			 printf("ERROR: Ivalid flag. The following flags are accepted: s, U, S, v, c.\n");
+			 return 0;
 	      }
 	}
+	printf("%s\n", uid);	
 
-
-	printf("%s %s %d %d %d %d %d\n", pid, uid, s, U, S, v, c);
-	
 	readDirectory();
 
 	return 0;
