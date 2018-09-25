@@ -25,7 +25,11 @@ int main (int argc, char *argv[]){
 		switch (opt)
 		{
 			case 'p':
-	        	 pid = optarg;
+	        	 if (!isdigit(optarg[0])) {
+				printf("PID must be numeric.\n");
+				return 0;
+			 }
+			 pid = optarg;
   			 break;
 	      		case 's':
 	        	 if (optarg != NULL && *optarg == '-'){
@@ -50,7 +54,7 @@ int main (int argc, char *argv[]){
 	      		case 'S':
 			 if (optarg != NULL && *optarg == '-'){
 				 break;
-			 } else if (optarg != NULL&& *optarg != '-') {
+			 } else if (optarg != NULL && *optarg != '-') {
 				  printf("ERROR: 'S' flag has no arguments. Only '-S-' , but it has no effect.\n");
 				 return 0;
 			 }else {
@@ -82,7 +86,6 @@ int main (int argc, char *argv[]){
 			 return 0;
 	      }
 	}
-	printf("%s\n", uid);	
 
 	readDirectory();
 

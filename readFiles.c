@@ -16,7 +16,6 @@ void fullPath(char *pid1){
 	full_path = (char *)malloc(strlen(proc) + strlen(pid1) + 1);
 	strcpy(full_path, proc);
 	strcat(full_path, pid1);
-	printf("%s\n", full_path);
 }
 
 // Parses stat file and prints info based on the flags.
@@ -39,25 +38,20 @@ int readStat(char *pid1)
 					strcpy(stat_path, full_path);
 					strcat(stat_path, "/stat");
 				
-					printf("Created statpath\n");
-					if (stat_file == NULL){
-						stat_file = fopen(stat_path, "rb");
-					}
-					printf("opened stat file\n");
-					printf("%s\n", stat_path); 
+					
+					stat_file = fopen(stat_path, "r");
+				
+
 					//return 1 if fails to open file
 					if(!stat_file)
 						return 1;
 					
-					printf("HELLO\n");
 					//put first 1000 characters of file into buf
 					while(fgets(buf, 1000, stat_file) != NULL)
 					
-					printf("HELLO\n");
 					//close file
 					fclose(stat_file);
 					
-					printf("%s\n", buf);		
 					//split buf on each space
 					char * eof;
 					eof = strtok(buf, " ");
@@ -99,6 +93,9 @@ int readStat(char *pid1)
 				}
 			}
 		
+		} else {
+			printf("Process %s not found.\n", pid1);
+			return 1;
 		}
 		
 }
@@ -141,7 +138,7 @@ int readStatm(char *pid1)
 						//strcpy(data->memory, statm_eof);
 						printf("vmem=%s ", statm_eof);
 						readCmdline(pid1);
-						return 1;		
+						return 0;		
 					}
 				}
 			}
@@ -185,12 +182,14 @@ int readCmdline(char *pid1)
 						char * cmdline_eof;
 						cmdline_eof = strtok(cmdline_buf, " ");
 						printf("[%s]\n", cmdline_eof);
-						return 1;
+						return 0;
 					}
 				}
 			}
+	
 	}
-	return 1;
+	printf("\n");
+	return 0;
 }
 
 int readStatus(char *pid1)
