@@ -166,7 +166,7 @@ int readCmdline(char *pid1)
 					{
 						// same as previous two files, make a pointer and buffer to hold contents
 						FILE *cmdline_ptr;
-						char cmdline_buf[200];
+						char *cmdline_buf = (char *)malloc(sizeof(char)*MAX_SIZE);;
 						
 						// open file and create string with full path
 						char cmdline_path[100];
@@ -177,35 +177,34 @@ int readCmdline(char *pid1)
 
 						if(!cmdline_ptr)
 							return 1;
-
-						int cmdCounter = 0;
+						
+						int n = 0;
 						do
 						{
 							char c = fgetc(cmdline_ptr);
 
 							if(isprint(c))
 							{
-								//printf("\n");
-								//break;
-								printf("%c", c);
+								cmdline_buf[n++] = c;
 							}
 							else if(c == '\0')
 							{
-								printf(" ");
-							}
-							else
-							{
+								cmdline_buf[n++] =  ' ';
+							} else {
 								break;
 							}
+						} while(c != EOF);
+						
+						char *end;
+						
+						end = cmdline_buf + strlen(cmdline_buf) -1;
+						while (end > cmdline_buf && isspace((unsigned char)*end)) end--;
+						
+						end[1] = '\0';
 
-							
-
-							cmdCounter++;
-
-						} while(cmdCounter < 300);
+						printf("[%s]", cmdline_buf);
 
 						fclose(cmdline_ptr);
-
 						printf("\n");
 						
 
@@ -279,5 +278,3 @@ int readStatus(char *pid1)
 		readStat(pid1);	
 		return 0;
 }
-			
-
