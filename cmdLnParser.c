@@ -1,3 +1,7 @@
+// Kathryn Thiese
+// Alec Scheele
+// CS 537 Prog 1 Fall 2018
+
 #include <sys/types.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -31,6 +35,8 @@ int main (int argc, char *argv[]){
 		switch (opt)
 		{
 			case 'p':
+			 // Checks if the argument passed in for the -p
+			 // flag is a number. 
 			 for (int i = 0; i < strlen(optarg); i++) {
 	        	 	if (!isdigit(optarg[i])) {
 					printf("PID must be numeric.\n");
@@ -94,6 +100,8 @@ int main (int argc, char *argv[]){
 			 return 0;
 	      }
 	}
+
+	// Go onto reading the /proc/ directory
 	readDirectory();
 
 	return 0;

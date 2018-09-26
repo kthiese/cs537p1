@@ -1,11 +1,14 @@
+#Alec Scheele
+#Kathryn Thiese 
+
 CC=gcc
 CFLAGS=-Wall -Wextra
 
-rm: prog
+rm: 537ps
 	rm -f *.o
 
-prog: cmdLnParser.o pid.o readFiles.o
-	$(CC) $(CFLAGS) *.o -o prog
+537ps: cmdLnParser.o pid.o readFiles.o
+	$(CC) $(CFLAGS) *.o -o 537ps
 
 pid.o: pid.c
 	$(CC) -c pid.c

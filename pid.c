@@ -1,3 +1,6 @@
+//Alec Scheele
+//Kathryn Thiese
+
 #include <string.h>
 #include <sys/types.h>
 #include <ctype.h>
@@ -26,6 +29,7 @@ int readDirectory(){
 		// uid. 
 		myDirectory = opendir(proc);
 		while (myFile = readdir(myDirectory)){
+			// Checks if the directory name starts with a digit.
 			if (isdigit(myFile->d_name[0])){
 				readStatus(myFile->d_name);
 			}
