@@ -1,3 +1,16 @@
+/*
+Kathryn Thiese
+NetId: Thiese
+CS Login: Thiese
+
+Alec Scheele
+NetId: abscheele
+CS Login ascheele
+
+This file contains the methods to read the stat, statm, status or cmdline files and then print the requested information to the screen depending on which global variables have been set by the main method in the cmdLnParser.c file.
+
+*/
+
 #include <ctype.h>
 #include <stdio.h>
 #include <sys/types.h>
