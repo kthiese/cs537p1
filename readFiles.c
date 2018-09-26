@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -53,9 +54,14 @@ int readStat(char *pid1)
 					fclose(stat_file);
 					
 					//split buf on each space
-					char * eof;
-					eof = strtok(buf, " ");
-					int counter = 0;
+					//char * eof;
+					//eof = strtok(buf, " ");
+					//int counter = 0;
+
+					//split buf on ") " character
+					char *eof;
+					eof = strtok(buf, ")");
+					int counter = 1; 
 					
 					// Print the pid of the process
 					printf("%s: ", pid1);
@@ -172,16 +178,39 @@ int readCmdline(char *pid1)
 						if(!cmdline_ptr)
 							return 1;
 
-						//put first 200 characters of file into buf
-						while(fgets(cmdline_buf, 200, cmdline_ptr) != NULL)
+						int cmdCounter = 0;
+						do
+						{
+							char c = fgetc(cmdline_ptr);
 
+							if(isprint(c))
+							{
+								//printf("\n");
+								//break;
+								printf("%c", c);
+							}
+							else if(c == '\0')
+							{
+								printf(" ");
+							}
+							else
+							{
+								break;
+							}
 
-						//close file
+							
+
+							cmdCounter++;
+
+						} while(cmdCounter < 300);
+
 						fclose(cmdline_ptr);
+
+						printf("\n");
 						
-						char * cmdline_eof;
-						cmdline_eof = strtok(cmdline_buf, " ");
-						printf("[%s]\n", cmdline_eof);
+
+				
+
 						return 0;
 					}
 				}
