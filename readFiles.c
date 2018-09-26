@@ -7,16 +7,88 @@
 #include <stdlib.h>
 #include "header.h"
 
-// Max size of file buffer
-int MAX_SIZE = 1000;
+// Declare constants
+#define MAX_SIZE 1000
+#define PATH_SIZE 100
+
 char * proc = "/proc/";
 char * full_path; 
 
-// Intitialized global varible "full_path" that holds the path to the pid directory
+// Intitialize global varible "full_path" that holds the path to the pid directory
 void fullPath(char *pid1){
 	full_path = (char *)malloc(strlen(proc) + strlen(pid1) + 1);
 	strcpy(full_path, proc);
 	strcat(full_path, pid1);
+}
+
+// This is the initial call from the readDirectory() function. 
+// Parses the status file and checks if the process has the same uid. 
+// If the p flag was passed into the program, we do not need to 
+// check the files uid. 
+// If there was no p flag, we need to check each process's uid. 
+int readStatus(char *pid1)
+{
+	struct dirent *myFile;
+
+	// Initializes the global variable full_path
+	fullPath(pid1);
+	DIR *myDirectory = opendir(full_path);
+		// Checks first if there was no pid passed into the commandline. 
+		if(myDirectory && pid == NULL)
+		{
+			while((myFile = readdir(myDirectory)))
+			{
+				if(strcmp(myFile->d_name, "status") == 0)
+				{
+					FILE *status_ptr;
+					int buf_size = 200;
+					char status_buf[buf_size];
+					
+					//open file and create string with full path
+					char status_path[PATH_SIZE];
+					strcpy(status_path, full_path);
+					strcat(status_path, "/status");
+					status_ptr = fopen(status_path, "r");
+					
+					if(!status_ptr)
+						return 1;
+
+					int linecounter = 0;
+					char uidLine[buf_size];
+					while(fgets(status_buf, buf_size, status_ptr) != NULL)
+					{
+						linecounter++;
+						if(linecounter == 9)
+						{
+							strcpy(uidLine, status_buf);
+						}
+					}
+
+					fclose(status_ptr);
+					char *status_eof;
+					status_eof = strtok(uidLine, "\t");
+					int uidCounter = 0;
+					while(status_eof != NULL)
+					{
+						status_eof = strtok(NULL, "\t");
+						uidCounter++;
+						if(uidCounter == 2)
+						{
+							// if the status file's uid does not match
+							// the global uid, return from call. 
+							if (strcmp(status_eof, uid) != 0){
+								return 0;
+							}
+						}
+					}
+				}
+			}
+		}
+		// If there was a p flag passed into the program or the process 
+		// has the same uid as the user, then we go on to parsing 
+		// the files. 
+		readStat(pid1);	
+		return 0;
 }
 
 // Parses stat file and prints info based on the flags.
@@ -31,7 +103,7 @@ int readStat(char *pid1)
 				if(strcmp(myFile->d_name, "stat") == 0)
 				{
 					// file pointer and buf to hold contents of file
-					char *buf = (char *)malloc(sizeof(char)*1000 + 1);
+					char *buf = (char *)malloc(sizeof(char)*MAX_SIZE + 1);
 					FILE *stat_file;
 
 					// open file, create string with full path
@@ -39,7 +111,7 @@ int readStat(char *pid1)
 					strcpy(stat_path, full_path);
 					strcat(stat_path, "/stat");
 				
-					
+					// Open stat file
 					stat_file = fopen(stat_path, "r");
 				
 
@@ -48,15 +120,10 @@ int readStat(char *pid1)
 						return 1;
 					
 					//put first 1000 characters of file into buf
-					while(fgets(buf, 1000, stat_file) != NULL)
+					while(fgets(buf, MAX_SIZE, stat_file) != NULL)
 					
 					//close file
 					fclose(stat_file);
-					
-					//split buf on each space
-					//char * eof;
-					//eof = strtok(buf, " ");
-					//int counter = 0;
 
 					//split buf on ") " character
 					char *eof;
@@ -93,12 +160,12 @@ int readStat(char *pid1)
 						eof = strtok(NULL, " ");
 						counter++;
 					}
-					
+					// Go on to read the statm file
 					readStatm(pid1);
 					return 0;
 				}
 			}
-		
+		// If directory not found, print the following. 
 		} else {
 			printf("Process %s not found.\n", pid1);
 			return 1;
@@ -106,7 +173,7 @@ int readStat(char *pid1)
 		
 }
 
-
+// Parses statm file and prints info based on flags.
 int readStatm(char *pid1)
 {
 	if (v == 1) {
@@ -120,10 +187,10 @@ int readStatm(char *pid1)
 					{
 						// same as with stat file, make a FILE ptr and a buffer to hold contents of file
 						FILE *statm_ptr;
-						char statm_buf[1000];
+						char statm_buf[MAX_SIZE];
 
 						// open file and create string with full path
-						char statm_path[100];
+						char statm_path[PATH_SIZE];
 						strcpy(statm_path, full_path);
 						strcat(statm_path, "/statm");
 						statm_ptr = fopen(statm_path, "r");
@@ -132,7 +199,7 @@ int readStatm(char *pid1)
 							return 1;
 
 						//put first 1000 characters of file into buf
-						while(fgets(statm_buf, 1000, statm_ptr) != NULL)
+						while(fgets(statm_buf, MAX_SIZE, statm_ptr) != NULL)
 
 						//close file
 						fclose(statm_ptr);
@@ -141,18 +208,25 @@ int readStatm(char *pid1)
 						//because we only want the first col
 						char * statm_eof;
 						statm_eof = strtok(statm_buf, " ");
+
 						//strcpy(data->memory, statm_eof);
 						printf("vmem=%s ", statm_eof);
+						
+						// Go on to read cmdline after 
+						// reading statm.
 						readCmdline(pid1);
 						return 0;		
 					}
 				}
 			}
 	}
+	// Go onto reading the cmdline if there was not a v flag. 
 	readCmdline(pid1);
 	return 0;
 }
 
+
+// Reads the cmdline file and prints based off flags
 int readCmdline(char *pid1)
 {
 	if (c == 1) {
@@ -164,20 +238,25 @@ int readCmdline(char *pid1)
 				{
 					if(strcmp(myFile->d_name, "cmdline") == 0)
 					{
-						// same as previous two files, make a pointer and buffer to hold contents
+						// same as previous two files, 
+						//make a pointer and buffer to hold contents
 						FILE *cmdline_ptr;
 						char *cmdline_buf = (char *)malloc(sizeof(char)*MAX_SIZE);;
 						
 						// open file and create string with full path
-						char cmdline_path[100];
+						char cmdline_path[PATH_SIZE];
 						strcpy(cmdline_path, full_path);
 						strcat(cmdline_path, "/cmdline");
-
+						
+						// Open file
 						cmdline_ptr = fopen(cmdline_path, "r");
-
+						
+						// Return if file does not exist
 						if(!cmdline_ptr)
 							return 1;
-						
+
+						// Read file character by character, 
+						// replacing any null chars with spaces.						
 						int n = 0;
 						do
 						{
@@ -195,20 +274,19 @@ int readCmdline(char *pid1)
 							}
 						} while(c != EOF);
 						
-						char *end;
+
+						// The following trims any trailing spaces of the cmdline_buf.
+						char *space;
 						
-						end = cmdline_buf + strlen(cmdline_buf) -1;
-						while (end > cmdline_buf && isspace((unsigned char)*end)) end--;
+						space = cmdline_buf + strlen(cmdline_buf) -1;
+						while (space > cmdline_buf && isspace((unsigned char)*space)) space--;
 						
-						end[1] = '\0';
+						space[1] = '\0';
 
 						printf("[%s]", cmdline_buf);
 
 						fclose(cmdline_ptr);
 						printf("\n");
-						
-
-				
 
 						return 0;
 					}
@@ -220,61 +298,5 @@ int readCmdline(char *pid1)
 	return 0;
 }
 
-int readStatus(char *pid1)
-{
-	struct dirent *myFile;
 
-	// Initializes the global variable full_path
-	fullPath(pid1);
-	DIR *myDirectory = opendir(full_path);
 
-		if(myDirectory && pid == NULL)
-		{
-			while((myFile = readdir(myDirectory)))
-			{
-				if(strcmp(myFile->d_name, "status") == 0)
-				{
-					FILE *status_ptr;
-					char status_buf[200];
-					
-					//open file and create string with full path
-					char status_path[100];
-					strcpy(status_path, full_path);
-					strcat(status_path, "/status");
-					status_ptr = fopen(status_path, "r");
-					
-					if(!status_ptr)
-						return 1;
-
-					int linecounter = 0;
-					char uidLine[200];
-					while(fgets(status_buf, 200, status_ptr) != NULL)
-					{
-						linecounter++;
-						if(linecounter == 9)
-						{
-							strcpy(uidLine, status_buf);
-						}
-					}
-
-					fclose(status_ptr);
-					char *status_eof;
-					status_eof = strtok(uidLine, "\t");
-					int uidCounter = 0;
-					while(status_eof != NULL)
-					{
-						status_eof = strtok(NULL, "\t");
-						uidCounter++;
-						if(uidCounter == 2)
-						{
-							if (strcmp(status_eof, uid) != 0){
-								return 0;
-							}
-						}
-					}
-				}
-			}
-		}
-		readStat(pid1);	
-		return 0;
-}

@@ -5,9 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include "header.h"
 
-
+// Declare and initialize global variables. 
+// The flags are stored as ints: 1 being true, 0 being false. 
 char *pid = NULL;
 char *uid = NULL;
 int s = 0;
@@ -16,25 +18,31 @@ int S = 0;
 int v = 0;
 int c = 1;
 
+// Parses the command line and runs the program. 
 int main (int argc, char *argv[]){
-	uid = (char *)malloc(sizeof(unsigned int)*8 + 1);
+	
+	int uid_size = 8;
+	uid = (char *)malloc(sizeof(unsigned int)*uid_size + 1);
 	sprintf(uid, "%u", getuid());	
+	
 	int opt = 0;
 	// Parses the command line and does the appropriate action
 	while ((opt = getopt (argc, argv, "p:s::U::S::v::c::")) != -1) {
 		switch (opt)
 		{
 			case 'p':
-	        	 if (!isdigit(optarg[0])) {
-				printf("PID must be numeric.\n");
-				return 0;
+			 for (int i = 0; i < strlen(optarg); i++) {
+	        	 	if (!isdigit(optarg[i])) {
+					printf("PID must be numeric.\n");
+					return 0;
+				}
 			 }
 			 pid = optarg;
   			 break;
 	      		case 's':
-	        	 if (optarg != NULL && *optarg == '-'){
+	        	 if (optarg != NULL && optarg == "-"){
 				 break;
-			 }else if (optarg != NULL && *optarg != '-') {
+			 }else if (optarg != NULL && optarg != "-") {
 				 printf("ERROR: 's' flag has no arguments. Only '-s-' , but it has no effect.\n");
 				 return 0;	 
 			 }else{ 
@@ -86,7 +94,6 @@ int main (int argc, char *argv[]){
 			 return 0;
 	      }
 	}
-
 	readDirectory();
 
 	return 0;
