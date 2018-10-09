@@ -37,16 +37,18 @@ int main (int argc, char *argv[]){
 			case 'p':
 			 // Checks if the argument passed in for the -p
 			 // flag is a number. 
-			 for (int i = 0; i < strlen(optarg); i++) {
-	        	 	if (!isdigit(optarg[i])) {
-					printf("PID must be numeric.\n");
-					return 0;
-				}
+			 if (optarg != NULL){
+				for (int i = 0; i < strlen(optarg); i++) {
+	        	 		if (!isdigit(optarg[i])) {
+						printf("PID must be numeric.\n");
+						return 0;
+					}
+			 	}
 			 }
 			 pid = optarg;
   			 break;
 	      		case 's':
-	        	 if (optarg != NULL && optarg == "-"){
+	        	 if (optarg != NULL && *optarg == '-'){
 				 break;
 			 }else if (optarg != NULL && optarg != "-") {
 				 printf("ERROR: 's' flag has no arguments. Only '-s-' , but it has no effect.\n");

@@ -129,9 +129,12 @@ int readStat(char *pid1)
 				
 
 					//return 1 if fails to open file
-					if(!stat_file)
+					if(!stat_file){
+						free(buf);
+						free(stat_path);
 						return 1;
-					
+					}
+
 					//put first 1000 characters of file into buf
 					while(fgets(buf, MAX_SIZE, stat_file) != NULL)
 					
@@ -174,7 +177,9 @@ int readStat(char *pid1)
 						counter++;
 					}
 					// Go on to read the statm file
-					readStatm(pid1);
+					readStatm();
+					free(buf);
+					free(stat_path);
 					return 0;
 				}
 			}
@@ -183,11 +188,12 @@ int readStat(char *pid1)
 			printf("Process %s not found.\n", pid1);
 			return 1;
 		}
+		return 0;
 		
 }
 
 // Parses statm file and prints info based on flags.
-int readStatm(char *pid1)
+int readStatm()
 {
 	if (v == 1) {
 		struct dirent *myFile;
@@ -227,20 +233,20 @@ int readStatm(char *pid1)
 						
 						// Go on to read cmdline after 
 						// reading statm.
-						readCmdline(pid1);
+						readCmdline();
 						return 0;		
 					}
 				}
 			}
 	}
 	// Go onto reading the cmdline if there was not a v flag. 
-	readCmdline(pid1);
+	readCmdline();
 	return 0;
 }
 
 
 // Reads the cmdline file and prints based off flags
-int readCmdline(char *pid1)
+int readCmdline()
 {
 	if (c == 1) {
 		struct dirent *myFile;
@@ -265,8 +271,10 @@ int readCmdline(char *pid1)
 						cmdline_ptr = fopen(cmdline_path, "r");
 						
 						// Return if file does not exist
-						if(!cmdline_ptr)
+						if(!cmdline_ptr){
+							free(cmdline_buf);
 							return 1;
+						}
 
 						// Read file character by character, 
 						// replacing any null chars with spaces.						
@@ -300,7 +308,7 @@ int readCmdline(char *pid1)
 
 						fclose(cmdline_ptr);
 						printf("\n");
-
+						free(cmdline_buf);
 						return 0;
 					}
 				}
@@ -310,6 +318,4 @@ int readCmdline(char *pid1)
 	printf("\n");
 	return 0;
 }
-
-
 

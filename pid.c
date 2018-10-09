@@ -28,7 +28,7 @@ int readDirectory(){
 		// which checks whether the process uid matches the user's
 		// uid. 
 		myDirectory = opendir(proc);
-		while (myFile = readdir(myDirectory)){
+		while ((myFile = readdir(myDirectory))){
 			// Checks if the directory name starts with a digit.
 			if (isdigit(myFile->d_name[0])){
 				readStatus(myFile->d_name);

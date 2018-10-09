@@ -15,5 +15,5 @@ int main (int argc, char *argv[]);
 int readDirectory();
 int readStatus(char *pid1);
 int readStat(char *pid1);
-int readStatm(char *pid1);
-int readCmdline(char *pid1);
+int readStatm();
+int readCmdline();
