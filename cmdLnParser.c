@@ -10,24 +10,28 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include "header.h"
+#include "pid.h"
 
-// Declare and initialize global variables. 
 // The flags are stored as ints: 1 being true, 0 being false. 
-char *pid = NULL;
-char *uid = NULL;
-int s = 0;
-int U = 1;
-int S = 0;
-int v = 0;
-int c = 1;
 
 // Parses the command line and runs the program. 
 int main (int argc, char *argv[]){
-	
+	int** flags = malloc(sizeof(int*)*5);
+	for (int i = 0; i < 5; i++){
+		flags[i] = (int*)malloc(sizeof(int));
+		if (i == 1){
+			*flags[i] = 1;
+		}
+		if (i == 4) {
+			*flags[i] = 1;
+		}
+	}	
+	char** ids = (char**)malloc(sizeof(char*)*2);
 	int uid_size = 8;
-	uid = (char *)malloc(sizeof(unsigned int)*uid_size + 1);
-	sprintf(uid, "%u", getuid());	
+	char *pid = NULL;
+	ids[1] = (char *)malloc(sizeof(unsigned int)*uid_size + 1);
+	 
+	sprintf(ids[1], "%u", getuid());	
 	
 	int opt = 0;
 	// Parses the command line and does the appropriate action
@@ -45,7 +49,8 @@ int main (int argc, char *argv[]){
 					}
 			 	}
 			 }
-			 pid = optarg;
+			 ids[0] = (char *)malloc(strlen(optarg)+1);
+			 ids[0] = optarg;
   			 break;
 	      		case 's':
 	        	 if (optarg != NULL && *optarg == '-'){
@@ -54,12 +59,12 @@ int main (int argc, char *argv[]){
 				 printf("ERROR: 's' flag has no arguments. Only '-s-' , but it has no effect.\n");
 				 return 0;	 
 			 }else{ 
-			 	s = 1;
+			 	*flags[0] = 1;
 	        	 	break;
 			 }
 	     	        case 'U':
 	        	 if (optarg != NULL && *optarg == '-'){
-				 U = 0;
+				 *flags[1] = 0;
 				 break;
 			 } else if (optarg != NULL && *optarg != '-') {
 				  printf("ERROR: 'U' flag has no arguments. Only '-U-': does not show utime when listing processes.\n");
@@ -74,7 +79,7 @@ int main (int argc, char *argv[]){
 				  printf("ERROR: 'S' flag has no arguments. Only '-S-' , but it has no effect.\n");
 				 return 0;
 			 }else {
-			 	S = 1;
+			 	*flags[2] = 1;
 	        	 	break;
 			 }
 	     	 	case 'v':
@@ -84,12 +89,12 @@ int main (int argc, char *argv[]){
 				  printf("ERROR: 'v' flag has no arguments. Only '-v-' , but it has no effect.\n");
 				 return 0;
 			 }else {
-			 	v = 1;
+			 	*flags[3] = 1;
 			 	break;
 			 }
 	      		case 'c':
 			 if (optarg != NULL && *optarg == '-'){
-				 c = 0;
+				 *flags[4] = 0;
 				 break;
 			 } else if (optarg != NULL && *optarg != '-') {
 				  printf("ERROR: 'c' flag has no arguments. Only '-c-': does not show command when listing processes.\n");
@@ -104,7 +109,7 @@ int main (int argc, char *argv[]){
 	}
 
 	// Go onto reading the /proc/ directory
-	readDirectory();
+	readDirectory(flags, ids);
 
 	return 0;
 }

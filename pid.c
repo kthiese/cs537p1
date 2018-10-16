@@ -9,18 +9,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "header.h"
+#include "readFiles.h"
 
 // Reads the proc directory
-int readDirectory(){
+int readDirectory(int** flags, char** ids){
 	DIR *myDirectory;
 	struct dirent *myFile;
 	
 	char *proc = "/proc/";
 	
 	// If a pid is passed in, just read that process file. 
-	if (pid != NULL){
-		readStatus(pid);
+	if (ids[0] != NULL){
+		readStatus(ids[0], ids, flags);
 	} else {
 		// If no pid is passed in, we need to print every process owned 
 		// by the uid. So a while loop is used here to traverse 
@@ -31,7 +31,7 @@ int readDirectory(){
 		while ((myFile = readdir(myDirectory))){
 			// Checks if the directory name starts with a digit.
 			if (isdigit(myFile->d_name[0])){
-				readStatus(myFile->d_name);
+				readStatus((myFile->d_name), ids, flags);
 			}
 		}
 	}	

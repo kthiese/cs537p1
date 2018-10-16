@@ -18,7 +18,7 @@ This file contains the methods to read the stat, statm, status or cmdline files 
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include "header.h"
+#include "readFiles.h"
 
 // Declare constants
 #define MAX_SIZE 1000
@@ -39,7 +39,7 @@ void fullPath(char *pid1){
 // If the p flag was passed into the program, we do not need to 
 // check the files uid. 
 // If there was no p flag, we need to check each process's uid. 
-int readStatus(char *pid1)
+int readStatus(char* pid1, char** ids, int** flags)
 {
 	struct dirent *myFile;
 
@@ -47,7 +47,7 @@ int readStatus(char *pid1)
 	fullPath(pid1);
 	DIR *myDirectory = opendir(full_path);
 		// Checks first if there was no pid passed into the commandline. 
-		if(myDirectory && pid == NULL)
+		if(myDirectory && ids[0] == NULL)
 		{
 			while((myFile = readdir(myDirectory)))
 			{
@@ -89,7 +89,7 @@ int readStatus(char *pid1)
 						{
 							// if the status file's uid does not match
 							// the global uid, return from call. 
-							if (strcmp(status_eof, uid) != 0){
+							if (strcmp(status_eof, ids[1]) != 0){
 								return 0;
 							}
 						}
@@ -100,12 +100,12 @@ int readStatus(char *pid1)
 		// If there was a p flag passed into the program or the process 
 		// has the same uid as the user, then we go on to parsing 
 		// the files. 
-		readStat(pid1);	
+		readStat(pid1, flags);	
 		return 0;
 }
 
 // Parses stat file and prints info based on the flags.
-int readStat(char *pid1)
+int readStat(char *pid1, int** flags)
 {
 	struct dirent *myFile;
 	DIR *myDirectory = opendir(full_path);
@@ -155,21 +155,21 @@ int readStat(char *pid1)
 						// Print state of process if s flag is 1
 						if(counter == 2)
 						{
-							if (s == 1)
+							if (*flags[0] == 1)
 								printf("%s ", eof);
 						}
 
 						// Print user time of process if U flag is 1
 						if(counter == 13)
 						{
-							if (U == 1)
+							if (*flags[1] == 1)
 								printf("utime=%s ", eof);
 						}
 
 						// Print system time of process if S flag is 1
 						if(counter == 14)
 						{
-							if (S == 1)
+							if (*flags[2] == 1)
 								printf("stime=%s ", eof);
 						}
 
@@ -177,7 +177,7 @@ int readStat(char *pid1)
 						counter++;
 					}
 					// Go on to read the statm file
-					readStatm();
+					readStatm(flags);
 					free(buf);
 					free(stat_path);
 					return 0;
@@ -193,9 +193,9 @@ int readStat(char *pid1)
 }
 
 // Parses statm file and prints info based on flags.
-int readStatm()
+int readStatm(int** flags)
 {
-	if (v == 1) {
+	if (*flags[3] == 1) {
 		struct dirent *myFile;
 		DIR *myDirectory = opendir(full_path);
 			if(myDirectory)
@@ -233,22 +233,22 @@ int readStatm()
 						
 						// Go on to read cmdline after 
 						// reading statm.
-						readCmdline();
+						readCmdline(flags);
 						return 0;		
 					}
 				}
 			}
 	}
 	// Go onto reading the cmdline if there was not a v flag. 
-	readCmdline();
+	readCmdline(flags);
 	return 0;
 }
 
 
 // Reads the cmdline file and prints based off flags
-int readCmdline()
+int readCmdline(int** flags)
 {
-	if (c == 1) {
+	if (*flags[4] == 1) {
 		struct dirent *myFile;
 		DIR *myDirectory = opendir(full_path);
 			if(myDirectory)
@@ -279,9 +279,10 @@ int readCmdline()
 						// Read file character by character, 
 						// replacing any null chars with spaces.						
 						int n = 0;
+						char c;
 						do
 						{
-							char c = fgetc(cmdline_ptr);
+							c = fgetc(cmdline_ptr);
 
 							if(isprint(c))
 							{
